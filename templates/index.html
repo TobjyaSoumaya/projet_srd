@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Système de Gestion de Climatisation Intelligent</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Système de Gestion de Climatisation Intelligent</h1>
+        <p class="subtitle">Surveillance et contrôle en temps réel</p>
+    </header>
+
+    <main>
+        <section id="dashboard">
+            <div class="container">
+                <h2>Tableau de bord</h2>
+                <div id="rooms-container">
+                    <!-- Les cartes des pièces seront ajoutées ici dynamiquement -->
+                    <div class="loading">Chargement des données des pièces...</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Système de Gestion de Climatisation Intelligent</p>
+        </div>
+    </footer>
+
+    <!-- Template pour les cartes des pièces -->
+    <template id="room-card-template">
+        <div class="room-card" data-room-id="">
+            <div class="room-header">
+                <h3 class="room-name"></h3>
+                <div class="room-status">
+                    <span class="status-indicator"></span>
+                    <span class="status-text"></span>
+                </div>
+            </div>
+            <div class="room-data">
+                <div class="data-row">
+                    <span class="label">Température:</span>
+                    <span class="value temperature-value"></span>
+                </div>
+                <div class="data-row">
+                    <span class="label">Humidité:</span>
+                    <span class="value humidity-value"></span>
+                </div>
+                <div class="data-row pressure-row">
+                    <span class="label">Pression:</span>
+                    <span class="value pressure-value"></span>
+                </div>
+                <div class="data-row">
+                    <span class="label">Température cible:</span>
+                    <div class="target-temp-control">
+                        <button class="temp-btn temp-minus">-</button>
+                        <span class="value target-temp-value">21.0°C</span>
+                        <button class="temp-btn temp-plus">+</button>
+                    </div>
+                </div>
+            </div>
+            <div class="room-controls">
+                <div class="control-group">
+                    <label class="switch-label">Climatisation</label>
+                    <label class="switch">
+                        <input type="checkbox" class="ac-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="control-group">
+                    <label class="switch-label">Mode Auto</label>
+                    <label class="switch">
+                        <input type="checkbox" class="auto-toggle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="last-update">Dernière mise à jour: <span class="update-time"></span></div>
+        </div>
+    </template>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
