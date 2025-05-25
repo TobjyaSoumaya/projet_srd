@@ -1,4 +1,4 @@
-"""
+""" 
 Simulateur de capteur d'humidité pour le système de gestion de climatisation intelligent.
 Envoie périodiquement des données d'humidité simulées au serveur central via XML-RPC.
 """

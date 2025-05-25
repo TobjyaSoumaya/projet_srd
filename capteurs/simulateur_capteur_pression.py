@@ -1,4 +1,4 @@
-"""
+""" 
 Simulateur de capteur de pression atmosphérique pour le système de gestion de climatisation intelligent.
 Envoie périodiquement des données de pression simulées au serveur central via XML-RPC.
 """

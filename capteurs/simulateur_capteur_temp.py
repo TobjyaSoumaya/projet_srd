@@ -1,4 +1,4 @@
-"""
+""" 
 Simulateur de capteur de température pour le système de gestion de climatisation intelligent.
 Envoie périodiquement des données de température simulées au serveur central via XML-RPC.
 """
