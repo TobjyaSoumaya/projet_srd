@@ -2,12 +2,14 @@
 Serveur central pour le système de gestion de climatisation intelligent.
 Combine un serveur XML-RPC pour recevoir les données des capteurs
 et un serveur Flask pour servir l'interface web et les API REST.
+Version modifiée avec gestion intégrée des capteurs.
 """
 import threading
 import xmlrpc.server
 from xmlrpc.server import SimpleXMLRPCServer
 from flask import Flask, render_template, jsonify, request, Response
 from modeles import GestionnairePieces
+from gestionnaire_capteurs import gestionnaire_capteurs
 import logging
 import json
 
@@ -145,6 +147,98 @@ def api_definir_mode_automatique(id_piece):
         return jsonify({'succes': True, 'mode_automatique': auto})
     except ValueError:
         return jsonify({'erreur': 'Valeur de mode invalide'}), 400
+
+# === NOUVELLES ROUTES POUR LA GESTION DES CAPTEURS ===
+
+@app.route('/api/capteurs/pieces', methods=['GET'])
+def api_obtenir_pieces_capteurs():
+    """
+    API pour obtenir la liste des pièces avec capteurs et leur état
+    """
+    pieces_capteurs = gestionnaire_capteurs.obtenir_pieces_disponibles()
+    etat_capteurs = gestionnaire_capteurs.obtenir_etat_capteurs()
+    
+    return jsonify({
+        'pieces': pieces_capteurs,
+        'etat_capteurs': etat_capteurs
+    })
+
+@app.route('/api/capteurs/pieces', methods=['POST'])
+def api_ajouter_piece_capteurs():
+    """
+    API pour ajouter une nouvelle pièce avec ses capteurs
+    """
+    data = request.json
+    if 'nom_piece' not in data:
+        return jsonify({'erreur': 'Nom de pièce manquant'}), 400
+    
+    nom_piece = data['nom_piece'].strip()
+    if not nom_piece:
+        return jsonify({'erreur': 'Nom de pièce vide'}), 400
+    
+    # Ajouter la pièce au gestionnaire de capteurs
+    gestionnaire_capteurs.ajouter_piece(nom_piece)
+    
+    return jsonify({
+        'succes': True,
+        'message': f'Pièce "{nom_piece}" ajoutée avec succès',
+        'piece_id': nom_piece
+    })
+
+@app.route('/api/capteurs/pieces/<piece_id>', methods=['DELETE'])
+def api_supprimer_piece_capteurs(piece_id):
+    """
+    API pour supprimer une pièce et ses capteurs
+    """
+    gestionnaire_capteurs.supprimer_piece(piece_id)
+    return jsonify({
+        'succes': True,
+        'message': f'Pièce "{piece_id}" supprimée avec succès'
+    })
+
+@app.route('/api/capteurs/pieces/<piece_id>/demarrer', methods=['POST'])
+def api_demarrer_capteurs_piece(piece_id):
+    """
+    API pour démarrer les capteurs d'une pièce
+    """
+    gestionnaire_capteurs.demarrer_capteurs_piece(piece_id)
+    return jsonify({
+        'succes': True,
+        'message': f'Capteurs démarrés pour la pièce "{piece_id}"'
+    })
+
+@app.route('/api/capteurs/pieces/<piece_id>/arreter', methods=['POST'])
+def api_arreter_capteurs_piece(piece_id):
+    """
+    API pour arrêter les capteurs d'une pièce
+    """
+    gestionnaire_capteurs.arreter_capteurs_piece(piece_id)
+    return jsonify({
+        'succes': True,
+        'message': f'Capteurs arrêtés pour la pièce "{piece_id}"'
+    })
+
+@app.route('/api/capteurs/pieces/<piece_id>/<type_capteur>/demarrer', methods=['POST'])
+def api_demarrer_capteur(piece_id, type_capteur):
+    """
+    API pour démarrer un capteur spécifique
+    """
+    gestionnaire_capteurs.demarrer_capteur(piece_id, type_capteur)
+    return jsonify({
+        'succes': True,
+        'message': f'Capteur {type_capteur} démarré pour la pièce "{piece_id}"'
+    })
+
+@app.route('/api/capteurs/pieces/<piece_id>/<type_capteur>/arreter', methods=['POST'])
+def api_arreter_capteur(piece_id, type_capteur):
+    """
+    API pour arrêter un capteur spécifique
+    """
+    gestionnaire_capteurs.arreter_capteur(piece_id, type_capteur)
+    return jsonify({
+        'succes': True,
+        'message': f'Capteur {type_capteur} arrêté pour la pièce "{piece_id}"'
+    })
 
 @app.route('/api/stream')
 def stream():
