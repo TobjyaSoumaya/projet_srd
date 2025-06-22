@@ -4,84 +4,831 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Système de Gestion de Climatisation Intelligent</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        /* Gestion des capteurs */
+        .capteur-controls {
+            margin-bottom: 20px;
+        }
+
+        .add-room-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .add-room-form input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .add-room-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #26de81 0%, #20bf6b 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(38, 222, 129, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(254, 202, 87, 0.4);
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 0.9em;
+        }
+
+        .room-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .room-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .capteur-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .capteur-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .capteur-name {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .capteur-status {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .room-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Monitoring des pièces */
+        .piece-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .piece-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .piece-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .piece-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .status-active {
+            background: #28a745;
+        }
+
+        .status-inactive {
+            background: #dc3545;
+        }
+
+        .sensors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .sensor-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .sensor-icon {
+            width: 30px;
+            height: 30px;
+            margin: 0 auto 10px;
+            fill: #667eea;
+        }
+
+        .sensor-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .sensor-label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .sensor-time {
+            font-size: 0.8em;
+            color: #adb5bd;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .control-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .control-label {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .temp-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .temp-display {
+            font-size: 1.2em;
+            font-weight: bold;
+            min-width: 60px;
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .temp-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: none;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .temp-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #667eea;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .no-data {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls-grid,
+            .sensors-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Système de Gestion de Climatisation Intelligent</h1>
-        <p class="subtitle">Surveillance et contrôle en temps réel</p>
-    </header>
-
-    <main>
-        <section id="dashboard">
-            <div class="container">
-                <h2>Tableau de bord</h2>
-                <div id="rooms-container">
-                    <!-- Les cartes des pièces seront ajoutées ici dynamiquement -->
-                    <div class="loading">Chargement des données des pièces...</div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 Système de Gestion de Climatisation Intelligent</p>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Système de Climatisation Intelligent</h1>
+            <p>Gestion automatisée de la température et surveillance des capteurs</p>
         </div>
-    </footer>
 
-    <!-- Template pour les cartes des pièces -->
-    <template id="room-card-template">
-        <div class="room-card" data-room-id="">
-            <div class="room-header">
-                <h3 class="room-name"></h3>
-                <div class="room-status">
-                    <span class="status-indicator"></span>
-                    <span class="status-text"></span>
-                </div>
-            </div>
-            <div class="room-data">
-                <div class="data-row">
-                    <span class="label">Température:</span>
-                    <span class="value temperature-value"></span>
-                </div>
-                <div class="data-row">
-                    <span class="label">Humidité:</span>
-                    <span class="value humidity-value"></span>
-                </div>
-                <div class="data-row pressure-row">
-                    <span class="label">Pression:</span>
-                    <span class="value pressure-value"></span>
-                </div>
-                <div class="data-row">
-                    <span class="label">Température cible:</span>
-                    <div class="target-temp-control">
-                        <button class="temp-btn temp-minus">-</button>
-                        <span class="value target-temp-value">21.0°C</span>
-                        <button class="temp-btn temp-plus">+</button>
+        <div class="main-content">
+            <!-- Section Gestion des Capteurs -->
+            <div class="section">
+                <h2>
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    Gestion des Capteurs
+                </h2>
+
+                <div class="capteur-controls">
+                    <div class="add-room-form">
+                        <input type="text" id="roomNameInput" placeholder="Nom de la pièce (ex: Salon)" maxlength="50">
+                        <button class="btn btn-primary" onclick="ajouterPiece()">Ajouter Pièce</button>
+                    </div>
+                    
+                    <div id="roomsList">
+                        <!-- Les pièces avec capteurs seront affichées ici -->
                     </div>
                 </div>
             </div>
-            <div class="room-controls">
-                <div class="control-group">
-                    <label class="switch-label">Climatisation</label>
-                    <label class="switch">
-                        <input type="checkbox" class="ac-toggle">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-                <div class="control-group">
-                    <label class="switch-label">Mode Auto</label>
-                    <label class="switch">
-                        <input type="checkbox" class="auto-toggle" checked>
-                        <span class="slider round"></span>
-                    </label>
+
+            <!-- Section Monitoring -->
+            <div class="section">
+                <h2>
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                    </svg>
+                    Monitoring des Pièces
+                </h2>
+
+                <div id="piecesMonitoring">
+                    <div class="no-data">
+                        Aucune donnée disponible. Ajoutez une pièce et démarrez ses capteurs.
+                    </div>
                 </div>
             </div>
-            <div class="last-update">Dernière mise à jour: <span class="update-time"></span></div>
         </div>
-    </template>
+    </div>
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        let capteursPieces = {};
+        let etatCapteurs = {};
+        let donneesTempsReel = {};
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            chargerDonneesCapteurs();
+            demarrerStreamingTempsReel();
+            
+            // Actualiser les données toutes les 5 secondes
+            setInterval(chargerDonneesCapteurs, 5000);
+        });
+
+        // Gestion du streaming temps réel
+        function demarrerStreamingTempsReel() {
+            const eventSource = new EventSource('/api/stream');
+            
+            eventSource.onmessage = function(event) {
+                try {
+                    donneesTempsReel = JSON.parse(event.data);
+                    afficherMonitoringPieces();
+                } catch (error) {
+                    console.error('Erreur lors du parsing des données streaming:', error);
+                }
+            };
+
+            eventSource.onerror = function(error) {
+                console.error('Erreur EventSource:', error);
+            };
+        }
+
+        // Charger les données des capteurs
+        async function chargerDonneesCapteurs() {
+            try {
+                const response = await fetch('/api/capteurs/pieces');
+                const data = await response.json();
+                
+                capteursPieces = data.pieces || [];
+                etatCapteurs = data.etat_capteurs || {};
+                
+                afficherListePieces();
+            } catch (error) {
+                console.error('Erreur lors du chargement des capteurs:', error);
+            }
+        }
+
+        // Ajouter une nouvelle pièce
+        async function ajouterPiece() {
+            const input = document.getElementById('roomNameInput');
+            const nomPiece = input.value.trim();
+            
+            if (!nomPiece) {
+                alert('Veuillez entrer un nom de pièce');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/capteurs/pieces', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ nom_piece: nomPiece })
+                });
+
+                const result = await response.json();
+                
+                if (result.succes) {
+                    input.value = '';
+                    chargerDonneesCapteurs();
+                } else {
+                    alert('Erreur lors de l\'ajout de la pièce: ' + (result.erreur || 'Erreur inconnue'));
+                }
+            } catch (error) {
+                console.error('Erreur lors de l\'ajout de la pièce:', error);
+                alert('Erreur lors de l\'ajout de la pièce');
+            }
+        }
+
+        // Afficher la liste des pièces avec capteurs
+        function afficherListePieces() {
+            const container = document.getElementById('roomsList');
+            
+            if (capteursPieces.length === 0) {
+                container.innerHTML = '<p class="no-data">Aucune pièce ajoutée</p>';
+                return;
+            }
+
+            let html = '';
+            capteursPieces.forEach(pieceId => {
+                const etatPiece = etatCapteurs[pieceId] || {};
+                
+                html += `
+                    <div class="room-item">
+                        <div class="room-header">
+                            <span class="room-name">${pieceId}</span>
+                            <button class="btn btn-danger btn-small" onclick="supprimerPiece('${pieceId}')">
+                                Supprimer
+                            </button>
+                        </div>
+                        
+                        <div class="capteur-grid">
+                            ${genererCapteurHTML(pieceId, 'temperature', etatPiece.temperature)}
+                            ${genererCapteurHTML(pieceId, 'humidite', etatPiece.humidite)}
+                            ${genererCapteurHTML(pieceId, 'pression', etatPiece.pression)}
+                        </div>
+                        
+                        <div class="room-controls">
+                            <button class="btn btn-success btn-small" onclick="demarrerTousCapteurs('${pieceId}')">
+                                Démarrer tous
+                            </button>
+                            <button class="btn btn-warning btn-small" onclick="arreterTousCapteurs('${pieceId}')">
+                                Arrêter tous
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Générer HTML pour un capteur
+        function genererCapteurHTML(pieceId, typeCapteur, etatCapteur) {
+            const actif = etatCapteur && etatCapteur.actif;
+            
+            return `
+                <div class="capteur-item">
+                    <div class="capteur-name">${typeCapteur.charAt(0).toUpperCase() + typeCapteur.slice(1)}</div>
+                    <div class="capteur-status ${actif ? 'status-active' : 'status-inactive'}">
+                        ${actif ? 'Actif' : 'Inactif'}
+                    </div>
+                    <button class="btn ${actif ? 'btn-warning' : 'btn-success'} btn-small" 
+                            onclick="${actif ? 'arreter' : 'demarrer'}Capteur('${pieceId}', '${typeCapteur}')">
+                        ${actif ? 'Arrêter' : 'Démarrer'}
+                    </button>
+                </div>
+            `;
+        }
+
+        // Fonctions de contrôle des capteurs
+        async function demarrerCapteur(pieceId, typeCapteur) {
+            try {
+                const response = await fetch(`/api/capteurs/pieces/${pieceId}/${typeCapteur}/demarrer`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                if (result.succes) {
+                    chargerDonneesCapteurs();
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        async function arreterCapteur(pieceId, typeCapteur) {
+            try {
+                const response = await fetch(`/api/capteurs/pieces/${pieceId}/${typeCapteur}/arreter`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                if (result.succes) {
+                    chargerDonneesCapteurs();
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        async function demarrerTousCapteurs(pieceId) {
+            try {
+                const response = await fetch(`/api/capteurs/pieces/${pieceId}/demarrer`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                if (result.succes) {
+                    chargerDonneesCapteurs();
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        async function arreterTousCapteurs(pieceId) {
+            try {
+                const response = await fetch(`/api/capteurs/pieces/${pieceId}/arreter`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                if (result.succes) {
+                    chargerDonneesCapteurs();
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        async function supprimerPiece(pieceId) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer la pièce "${pieceId}" ?`)) {
+                try {
+                    const response = await fetch(`/api/capteurs/pieces/${pieceId}`, {
+                        method: 'DELETE'
+                    });
+                    const result = await response.json();
+                    if (result.succes) {
+                        chargerDonneesCapteurs();
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                }
+            }
+        }
+
+        // Affichage du monitoring des pièces
+        function afficherMonitoringPieces() {
+            const container = document.getElementById('piecesMonitoring');
+            
+            if (Object.keys(donneesTempsReel).length === 0) {
+                container.innerHTML = '<div class="no-data">Aucune donnée disponible. Ajoutez une pièce et démarrez ses capteurs.</div>';
+                return;
+            }
+
+            let html = '';
+            for (const [pieceId, piece] of Object.entries(donneesTempsReel)) {
+                html += genererCartePiece(pieceId, piece);
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // Générer une carte de pièce pour le monitoring
+        function genererCartePiece(pieceId, piece) {
+            const hasData = piece.temperature || piece.humidite || piece.pression;
+            
+            return `
+                <div class="piece-card">
+                    <div class="piece-header">
+                        <span class="piece-name">${pieceId}</span>
+                        <div class="piece-status">
+                            <div class="status-indicator ${hasData ? 'status-active' : 'status-inactive'}"></div>
+                            <span>${hasData ? 'Données reçues' : 'Pas de données'}</span>
+                        </div>
+                    </div>
+
+                    ${hasData ? `
+                        <div class="sensors-grid">
+                            ${piece.temperature ? genererCapteurCard('Température', piece.temperature.valeur + '°C', piece.temperature.timestamp, '🌡️') : ''}
+                            ${piece.humidite ? genererCapteurCard('Humidité', piece.humidite.valeur + '%', piece.humidite.timestamp, '💧') : ''}
+                            ${piece.pression ? genererCapteurCard('Pression', piece.pression.valeur + ' hPa', piece.pression.timestamp, '🌀') : ''}
+                        </div>
+
+                        <div class="controls-grid">
+                            <div class="control-card">
+                                <div class="control-label">Température Cible</div>
+                                <div class="temp-control">
+                                    <button class="btn btn-primary temp-btn" onclick="ajusterTemperature('${pieceId}', -0.5)">-</button>
+                                    <span class="temp-display">${piece.temperature_cible}°C</span>
+                                    <button class="btn btn-primary temp-btn" onclick="ajusterTemperature('${pieceId}', 0.5)">+</button>
+                                </div>
+                            </div>
+
+                            <div class="control-card">
+                                <div class="control-label">Mode Automatique</div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" ${piece.mode_automatique ? 'checked' : ''} 
+                                           onChange="basculerModeAuto('${pieceId}', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="control-card">
+                                <div class="control-label">Climatisation</div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" ${piece.climatisation_active ? 'checked' : ''} 
+                                           ${piece.mode_automatique ? 'disabled' : ''}
+                                           onChange="basculerClimatisation('${pieceId}', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                                ${piece.mode_automatique ? '<small style="color: #6c757d;">Mode automatique activé</small>' : ''}
+                            </div>
+                        </div>
+                    ` : '<div class="no-data">Démarrez les capteurs pour voir les données</div>'}
+                </div>
+            `;
+        }
+
+        // Générer une carte de capteur
+        function genererCapteurCard(label, valeur, timestamp, icon) {
+            const date = new Date(timestamp * 1000);
+            const timeStr = date.toLocaleTimeString();
+            
+            return `
+                <div class="sensor-card">
+                    <div class="sensor-icon">${icon}</div>
+                    <div class="sensor-value">${valeur}</div>
+                    <div class="sensor-label">${label}</div>
+                    <div class="sensor-time">${timeStr}</div>
+                </div>
+            `;
+        }
+
+        // Fonctions de contrôle de la climatisation
+        async function ajusterTemperature(pieceId, delta) {
+            const piece = donneesTempsReel[pieceId];
+            if (!piece) return;
+
+            const nouvelleTemp = Math.round((piece.temperature_cible + delta) * 2) / 2; // Arrondi à 0.5
+            const tempFinal = Math.max(15, Math.min(30, nouvelleTemp)); // Entre 15 et 30°C
+
+            try {
+                const response = await fetch(`/api/pieces/${pieceId}/temperature-cible`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ temperature: tempFinal })
+                });
+                
+                if (response.ok) {
+                    donneesTempsReel[pieceId].temperature_cible = tempFinal;
+                    afficherMonitoringPieces();
+                }
+            } catch (error) {
+                console.error('Erreur lors de l\'ajustement de la température:', error);
+            }
+        }
+
+        async function basculerModeAuto(pieceId, active) {
+            try {
+                const response = await fetch(`/api/pieces/${pieceId}/mode-automatique`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ auto: active })
+                });
+                
+                if (response.ok) {
+                    donneesTempsReel[pieceId].mode_automatique = active;
+                    afficherMonitoringPieces();
+                }
+            } catch (error) {
+                console.error('Erreur lors du basculement du mode automatique:', error);
+            }
+        }
+
+        async function basculerClimatisation(pieceId, active) {
+            try {
+                const response = await fetch(`/api/pieces/${pieceId}/climatisation`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ active: active })
+                });
+                
+                if (response.ok) {
+                    donneesTempsReel[pieceId].climatisation_active = active;
+                    afficherMonitoringPieces();
+                }
+            } catch (error) {
+                console.error('Erreur lors du basculement de la climatisation:', error);
+            }
+        }
+
+        // Gestion de l'entrée clavier pour ajouter une pièce
+        document.getElementById('roomNameInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                ajouterPiece();
+            }
+        });
+    </script>
 </body>
 </html>
